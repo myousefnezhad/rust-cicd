@@ -1,0 +1,42 @@
+name: Rust Manual PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose what to run"
+        required: true
+        type: choice
+        options:
+          - test
+          - build
+
+jobs:
+  rust-action:
+    # For manual runs, only allow running against main
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo files
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: root/app
+
+      - name: Run cargo test
+        if: github.event_name == 'pull_request' || inputs.action == 'test'
+        run: cargo test --all --verbose
+
+      - name: Run cargo build
+        if: github.event_name == 'workflow_dispatch' && inputs.action == 'build'
+        run: cargo build --all --verbose
