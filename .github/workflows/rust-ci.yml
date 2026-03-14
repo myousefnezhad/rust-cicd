@@ -1,7 +1,9 @@
-name: Rust Manual Test -> Build -> Artifact
+name: Rust CI
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
@@ -9,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Rust
@@ -30,7 +32,7 @@ jobs:
     needs: test
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Rust
@@ -41,14 +43,13 @@ jobs:
         with:
           workspaces: app -> target
 
-      - name: Build project
+      - name: Build release
         working-directory: app
         run: cargo build --release --all --verbose
 
-      - name: Upload build artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rust-build-artifacts
-          path: |
-            app/target/release/
+          name: rust-release
+          path: app/target/release/
           if-no-files-found: error
