@@ -1,5 +1,5 @@
 use app::add;
 
 fn main() {
-    println!("Result: {}", add(5, 6));
+    println!("Adding 5 + 6 is {}", add(5, 6));
 }
